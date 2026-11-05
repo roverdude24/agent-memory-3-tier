@@ -11,7 +11,8 @@ Full spec: Tolaria note `~/Documents/Tolaria/agent-memory-rules.md`.
 2. **Hindsight (middle, facts):** this harness uses bank `<bank>`. Recall at session start. Use `retain` / `learn` for corrections, preferences, decisions, and reusable fixes. Never retain secrets or progress chatter.
 3. **Tolaria (truth):** locked decisions, client facts, and project status in `~/Documents/Tolaria/project/project-<slug>.md`. Read it at session start through MCP `tolaria`. Write only stable truth with `update_note` / `append_to_note`, at milestones or when asked.
 
-- Conflicts: user > repo `PROJECT-STATE.md` > Tolaria > Hindsight > Lore. Fix the lower tier when it is wrong.
+- Other agents' Hindsight banks: MCP `hindsight` `recall` takes `banks` (see `list_banks`; `["all"]` = every active bank). Use it only when your own recall has nothing for the task, the user names another agent, or a fact you are about to retain contradicts your bank. Prefer one named bank. Results carry `bank`; confirm other banks' facts in Tolaria or Lore before acting on or retaining them. `retain`/`learn` always write your own bank.
+- Conflicts: user > repo `PROJECT-STATE.md` > Tolaria > own Hindsight bank > other agents' banks > Lore. Fix the lower tier when it is wrong.
 - Promote a Hindsight fact to Tolaria when the user confirms it or it holds across 3+ sessions.
 ```
 

@@ -130,7 +130,7 @@ Copy the Hindsight bridge first: `cp scripts/hindsight-mcp.py ~/.agents/memory/`
       autoRecall: true
   ```
 
-- **Pi:** `ln -s ~/.agents/memory/pi-memory-bridge.ts ~/.pi/agent/extensions/pi-memory-bridge.ts`. The bridge pushes every turn to Lore, retains into `pi-memory`, and injects Hindsight, Lore, and Tolaria context on the first turns. Add `lore` and `tolaria` to `~/.pi/agent/mcp.json`, and Hindsight as `{"url": "http://127.0.0.1:8888/mcp/pi-memory/"}`.
+- **Pi:** `ln -s ~/.agents/memory/pi-memory-bridge.ts ~/.pi/agent/extensions/pi-memory-bridge.ts`. The bridge pushes every turn to Lore, retains into `pi-memory`, and injects Hindsight, Lore, and Tolaria context on the first turns. Add `lore` and `tolaria` to `~/.pi/agent/mcp.json`, Hindsight as `{"url": "http://127.0.0.1:8888/mcp/pi-memory/"}`, and the stdio bridge as a second server `hindsight-banks` (`HINDSIGHT_BANK_ID=pi-memory`) so Pi can read other banks. Check: `pi mcp list` shows both connected.
 - **Claude Code:**
 
   ```bash

@@ -168,7 +168,7 @@ Check the Hindsight bridge first: `& "$HOME\.hindsight-venv\Scripts\python.exe" 
   ```
 
 - **OMP:** add the three servers to `$HOME\.omp\agent\mcp.json` under `mcpServers` with `HINDSIGHT_BANK_ID=omp`, and add the `memory:` block from [INSTALL.md](INSTALL.md#per-harness) to `$HOME\.omp\agent\config.yml`.
-- **Pi:** copy `scripts\pi-memory-bridge.ts` to `$HOME\.pi\agent\extensions\` (copy, not symlink: Windows symlinks need Developer Mode). Add `lore` and `tolaria` to `$HOME\.pi\agent\mcp.json`, and Hindsight as `{"url": "http://127.0.0.1:8888/mcp/pi-memory/"}`.
+- **Pi:** copy `scripts\pi-memory-bridge.ts` to `$HOME\.pi\agent\extensions\` (copy, not symlink: Windows symlinks need Developer Mode). Add `lore` and `tolaria` to `$HOME\.pi\agent\mcp.json`, Hindsight as `{"url": "http://127.0.0.1:8888/mcp/pi-memory/"}`, and the stdio bridge as a second server `hindsight-banks` (`HINDSIGHT_BANK_ID=pi-memory`) so Pi can read other banks.
 - **Gemini CLI / Antigravity:** add the three servers to `$HOME\.gemini\settings.json`, or with `agy mcp add`.
 - **Hermes:** usually runs in WSL, not native Windows. If it is installed in WSL, follow the macOS/Linux steps there.
 

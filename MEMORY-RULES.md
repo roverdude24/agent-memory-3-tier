@@ -14,7 +14,7 @@ Flow: sessions → Lore → Hindsight (extraction) → Tolaria (promotion). Noth
 
 ## Precedence
 
-User instruction > repository `PROJECT-STATE.md` > Tolaria > Hindsight > Lore.
+User instruction > repository `PROJECT-STATE.md` > Tolaria > own Hindsight bank > other agents' banks > Lore.
 
 When a lower tier contradicts a higher one, act on the higher tier. Fix the lower one when practical: retain a correction in Hindsight, or mark superseded Tolaria notes with `status: Superseded` and `superseded_by:` instead of deleting them.
 
@@ -22,7 +22,7 @@ When a lower tier contradicts a higher one, act on the higher tier. Fix the lowe
 
 | Harness | Lore write | Hindsight bank and retain | Tolaria read |
 |---|---|---|---|
-| Pi | `pi-memory-bridge.ts` after every settled turn | `pi-memory`; the bridge retains at compaction and shutdown | The bridge injects `project/project-<slug>.md` when relevant |
+| Pi | `pi-memory-bridge.ts` after every settled turn | `pi-memory`; the bridge retains at compaction and shutdown; MCP `hindsight-banks` (the stdio bridge, bank `pi-memory`) adds cross-bank recall | The bridge injects `project/project-<slug>.md` when relevant |
 | OMP | `memory-sync` job (source `omp`) | `omp`; native auto-retain; MCP `hindsight` uses the same bank | MCP `tolaria` at session start |
 | Claude Code | `memory-sync` job (source `claude-code`) | `hermes-memory`; `memory-sync` retains sessions idle 30 min | MCP `tolaria` at session start |
 | Codex | `memory-sync` job (source `codex`) | `hermes-memory`; `memory-sync` retains sessions idle 30 min | MCP `tolaria` at session start |
@@ -36,6 +36,17 @@ Banks stay separate per harness. Lore and Tolaria are shared by every harness. B
 1. Read the Tolaria project note `project/project-<slug>.md`. Use `search_notes` when the slug is unclear.
 2. Recall from Hindsight for the task. Pi, OMP, and Hermes do this automatically. In Claude Code and Codex, call `recall`.
 3. Search Lore only when exact history matters.
+
+## Reading other agents' banks
+
+The stdio Hindsight MCP bridge (`scripts/hindsight-mcp.py`) reads across banks; writes always stay in the agent's own bank (`HINDSIGHT_BANK_ID`).
+
+- `recall` takes `banks`: a list of bank ids, or `["all"]` for every active bank. Banks listed in env `HINDSIGHT_ARCHIVED_BANKS` (default `omp-memory`) are skipped by `"all"` but still readable by name. Without `banks`, recall reads only the own bank and returns the normal Hindsight response.
+- The own bank keeps its full token budget; other banks share a second budget (at least 512 tokens each). Results are interleaved by per-bank rank, own bank first, and each carries `bank`. Scores are not compared across banks: they depend on bank size. A failing bank lands in `errors` instead of failing the call.
+- `reflect` takes `bank` (one bank). `list_banks` lists banks with `own` and `archived` flags.
+- When to use it: only if your own recall has nothing for the task, the user names another agent, or a fact you are about to retain contradicts your bank. Prefer one named bank over `["all"]`. Not at session start.
+- Other banks hold another agent's extractions: confirm in Tolaria or Lore before acting on or retaining them.
+- Pi's built-in Hindsight endpoint (`/mcp/pi-memory/`) cannot take `banks`; register the stdio bridge for Pi as a second server (`hindsight-banks`).
 
 ## Writing
 

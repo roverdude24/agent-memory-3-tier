@@ -36,7 +36,7 @@ Or follow [INSTALL.md](INSTALL.md) / [INSTALL-WINDOWS.md](INSTALL-WINDOWS.md) yo
 | [INSTALL-WINDOWS.md](INSTALL-WINDOWS.md) | Windows 10/11 install (PowerShell, Task Scheduler) |
 | `scripts/memory-sync.ts` | Bun job: indexes all harnesses into Lore, embeds, retains idle Claude/Codex sessions into Hindsight |
 | `scripts/pi-memory-bridge.ts` | Pi extension: live Lore push, Hindsight retain, and memory injection. Also supplies the record builder `memory-sync.ts` uses |
-| `scripts/hindsight-mcp.py` | Dependency-free stdio MCP server for Hindsight (`retain`, `recall`, `reflect`, `learn`) |
+| `scripts/hindsight-mcp.py` | Dependency-free stdio MCP server for Hindsight: `retain`/`learn` write the agent's own bank; `recall` (with `banks`), `reflect` (with `bank`) and `list_banks` read across agents' banks |
 | `scripts/hindsight-retry-failed.py` | Re-sends Hindsight retains that failed for transient reasons (dropped model, rate limit, connection), newest per document |
 | `templates/` | launchd plists, Hindsight launchers (`start.sh`, `start.ps1`) |
 
