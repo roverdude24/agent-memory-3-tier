@@ -177,3 +177,7 @@ Instruction files: paste the block from [AGENTS-snippet.md](AGENTS-snippet.md) i
 ## Phase 6: verify end to end
 
 The same as [INSTALL.md Phase 6](INSTALL.md#phase-6-verify-end-to-end), using `node $LORE search "K7F3" --mode keyword` and `Start-ScheduledTask AgentMemorySync` to force a sync. Report the same table: harness × (MCP connected, Lore marker found, Hindsight retain seen, instructions loaded).
+
+## Troubleshooting
+
+See [INSTALL.md Troubleshooting](INSTALL.md#troubleshooting). On Windows, restart Hindsight with `Stop-ScheduledTask HindsightAPI; Start-ScheduledTask HindsightAPI`, and run the backlog retry with `& "$HOME\.hindsight-venv\Scripts\python.exe" scripts\hindsight-retry-failed.py <bank>`.
