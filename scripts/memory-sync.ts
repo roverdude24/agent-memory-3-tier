@@ -15,13 +15,17 @@ const HOME = homedir();
 const DIR = join(HOME, ".agents", "memory");
 const STATE = join(DIR, "state.json");
 const LOCK = join(DIR, "sync.lock");
-const LORE = join(HOME, ".npm-global", "bin", "lore");
+const WIN = process.platform === "win32";
+// Run Lore's JS entry through node: on Windows npm installs `lore` as a .cmd shim that execFileSync cannot spawn.
+const LORE = WIN
+  ? join(HOME, ".npm-global", "node_modules", "@jordanhindo", "lore", "dist", "cli", "lore.js")
+  : join(HOME, ".npm-global", "bin", "lore");
 const LORE_DB = join(HOME, ".lore", "lore.db");
 const HINDSIGHT = "http://127.0.0.1:8888";
 const RETAIN_BANK = process.env.MEMORY_SYNC_BANK ?? "hermes-memory"; // Claude + Codex share one bank
 const IDLE_MS = 30 * 60_000;
 const MAX_RETAIN_CHARS = 160_000;
-const ENV = { ...process.env, PATH: "/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin" };
+const ENV = WIN ? process.env : { ...process.env, PATH: "/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin" };
 
 type State = {
   files: Record<string, { size: number; mtimeMs: number; entries: number }>;
@@ -51,7 +55,7 @@ function saveState() {
 function loreIndex(dir: string, source: string) {
   if (!existsSync(dir)) return;
   try {
-    const out = execFileSync(LORE, ["index", dir, "--source", source], { env: ENV, timeout: 30 * 60_000, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
+    const out = execFileSync("node", [LORE, "index", dir, "--source", source], { env: ENV, timeout: 30 * 60_000, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
     summary.push(`${source}: ${out.trim().replace(/^Indexed /, "")}`);
   } catch (error) {
     failed = true;
@@ -62,7 +66,7 @@ function loreIndex(dir: string, source: string) {
 // Tier 1c: embed new user/assistant messages so Lore's hybrid search covers them (incremental, newest first).
 function loreEmbed() {
   try {
-    const out = execFileSync(LORE, ["embed"], { env: ENV, timeout: 30 * 60_000, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
+    const out = execFileSync("node", [LORE, "embed"], { env: ENV, timeout: 30 * 60_000, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
     summary.push(`embed: ${out.trim().replace(/^Embedded /, "")}`);
   } catch (error) {
     failed = true;
@@ -99,7 +103,7 @@ function pushPiFormat(root: string, source: string) {
           seqOffset: from, totalEntries: entries.length, source,
         }, entries.slice(from));
         if (batch.messages.length) {
-          execFileSync(LORE, ["push"], { env: ENV, input: JSON.stringify(batch), timeout: 120_000, stdio: ["pipe", "ignore", "pipe"] });
+          execFileSync("node", [LORE, "push"], { env: ENV, input: JSON.stringify(batch), timeout: 120_000, stdio: ["pipe", "ignore", "pipe"] });
           pushed++;
           messages += batch.messages.length;
         }
@@ -119,7 +123,8 @@ function pushPiFormat(root: string, source: string) {
 async function retainIdle(sources: string[]) {
   state.retainSince ??= new Date(Date.now() - 14 * 86_400_000).toISOString(); // first run: skip old history
   const cutoff = new Date(Date.now() - IDLE_MS).toISOString();
-  const db = new Database(LORE_DB, { readonly: true });
+  // Not readonly: a readonly connection cannot create the WAL -shm file, so it fails whenever no other Lore process is open.
+  const db = new Database(LORE_DB, { readwrite: true, create: false });
   const sessions = db.query(
     `SELECT session_id, source, project, last_timestamp FROM sessions
      WHERE source IN (${sources.map(() => "?").join(",")}) AND last_timestamp >= ? AND last_timestamp <= ?`,

@@ -22,9 +22,9 @@ Conflicts resolve top-down: user > repo `PROJECT-STATE.md` > Tolaria > Hindsight
 
 Give your agent this instruction:
 
-> Follow INSTALL.md from https://github.com/roverdude24/agent-memory-3-tier. Back up configs first, keep existing MCP servers, and report a verification table at the end.
+> Follow INSTALL.md (macOS/Linux) or INSTALL-WINDOWS.md (Windows) from https://github.com/roverdude24/agent-memory-3-tier. Back up configs first, keep existing MCP servers, and report a verification table at the end.
 
-Or follow [INSTALL.md](INSTALL.md) yourself. About 30 to 45 minutes, plus a background embed of your session history.
+Or follow [INSTALL.md](INSTALL.md) / [INSTALL-WINDOWS.md](INSTALL-WINDOWS.md) yourself. About 30 to 45 minutes, plus a background embed of your session history.
 
 ## Files
 
@@ -32,15 +32,16 @@ Or follow [INSTALL.md](INSTALL.md) yourself. About 30 to 45 minutes, plus a back
 |---|---|
 | [MEMORY-RULES.md](MEMORY-RULES.md) | The full contract: tiers, precedence, per-harness wiring, read/write rules |
 | [AGENTS-snippet.md](AGENTS-snippet.md) | Short block to paste into `AGENTS.md` / `CLAUDE.md` / `GEMINI.md` |
-| [INSTALL.md](INSTALL.md) | Step-by-step install with a check after every phase |
+| [INSTALL.md](INSTALL.md) | macOS/Linux install, with a check after every phase |
+| [INSTALL-WINDOWS.md](INSTALL-WINDOWS.md) | Windows 10/11 install (PowerShell, Task Scheduler) |
 | `scripts/memory-sync.ts` | Bun job: indexes all harnesses into Lore, embeds, retains idle Claude/Codex sessions into Hindsight |
 | `scripts/pi-memory-bridge.ts` | Pi extension: live Lore push, Hindsight retain, and memory injection. Also supplies the record builder `memory-sync.ts` uses |
 | `scripts/hindsight-mcp.py` | Dependency-free stdio MCP server for Hindsight (`retain`, `recall`, `reflect`, `learn`) |
-| `templates/` | launchd plists and the Hindsight launcher script |
+| `templates/` | launchd plists, Hindsight launchers (`start.sh`, `start.ps1`) |
 
 ## Requirements
 
-macOS (launchd) with Homebrew, Node 26, Bun, Python 3.12, and an OpenAI-compatible LLM endpoint for Hindsight's fact extraction. Everything runs locally on `127.0.0.1`; only Hindsight's extraction calls leave the machine.
+macOS, Linux, or Windows 10/11, with Node 26, Bun, Python 3.12, and an OpenAI-compatible LLM endpoint for Hindsight's fact extraction. Everything runs locally on `127.0.0.1`; only Hindsight's extraction calls leave the machine.
 
 ## License
 

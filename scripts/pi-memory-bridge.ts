@@ -7,7 +7,10 @@ import { basename, join } from "node:path";
 
 const HINDSIGHT_URL = process.env.PI_MEMORY_HINDSIGHT_URL ?? "http://127.0.0.1:8888";
 const HINDSIGHT_BANK = process.env.PI_MEMORY_HINDSIGHT_BANK ?? "pi-memory";
-const LORE_BIN = process.env.PI_MEMORY_LORE_BIN ?? join(homedir(), ".npm-global", "bin", "lore");
+// Lore's JS entry, run through node (Windows npm installs a .cmd shim that spawn cannot run).
+const LORE_BIN = process.env.PI_MEMORY_LORE_BIN ?? (process.platform === "win32"
+  ? join(homedir(), ".npm-global", "node_modules", "@jordanhindo", "lore", "dist", "cli", "lore.js")
+  : join(homedir(), ".npm-global", "bin", "lore"));
 const MAX_MESSAGE_CHARS = 120_000;
 const MAX_RETAIN_CHARS = 160_000;
 const MAX_MEMORY_CONTEXT_CHARS = 6_000;
@@ -271,7 +274,7 @@ async function recallHindsight(prompt: string, cwd: string): Promise<string | un
 
 async function recallLore(prompt: string, cwd: string): Promise<string | undefined> {
   // Hybrid (keyword + meaning) by default: a natural-language prompt rarely shares exact terms with past work.
-  const raw = await run(LORE_BIN, [
+  const raw = await run("node", [LORE_BIN,
     "search", redactSecrets(prompt).slice(0, 500), "--project", cwd, "--json", "--limit", "3",
   ], undefined, 5_000);
   const data = JSON.parse(raw);
@@ -332,7 +335,7 @@ export default function (pi: ExtensionAPI) {
         seqOffset,
         totalEntries,
       }, entries);
-      if (batch.messages.length) await run(LORE_BIN, ["push"], JSON.stringify(batch));
+      if (batch.messages.length) await run("node", [LORE_BIN, "push"], JSON.stringify(batch));
       loreCursors.set(sessionId, totalEntries);
     }).catch(() => warnOnce("lore", "Lore sync failed; continuing without session indexing"));
     return loreQueue;
